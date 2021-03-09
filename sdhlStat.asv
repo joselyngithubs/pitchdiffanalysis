@@ -1,0 +1,38 @@
+function sdhlStat
+
+sourceLoc = 'C:\Users\Joselyn\Documents\pitchdiffrove data\DataMatFiles\';
+files = dir([sourceLoc '*.mat']);
+files = {files.name};
+
+nFiles = length(files);
+
+p_sd = NaN(nFiles,1);
+p_hl = NaN(nFiles,1);
+
+for f=1:nFiles
+    
+    load([sourceLoc files{f}]);
+    data = data(data(:,1)==5,[3,6,7]); % type / response / isCorrect
+    
+    p_sd(f) = sd_treat(data);
+    
+end
+
+end
+
+function p = sd_treat(data)
+
+data(data(:,1)<2,1) = 0; % re-labeling -- if higher or lower ("different"), mark as 0
+data(data(:,1)>1,1) = 1; % re-labeling -- if "same", mark as 1
+data(data(:,2)<2,2) = 0; % re-labeling -- if respond higher or lower ("different"), mark as 0
+data(data(:,2)>1,2) = 1; % re-labeling -- if respond "same", mark as 1
+
+p = sum(data(:,1)==data(:,2))/length(data);
+
+end
+
+function p = hl_treat(data)
+
+
+
+end

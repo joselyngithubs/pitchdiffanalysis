@@ -1,0 +1,1 @@
+function p = cumgauss(x)p = .5*(erf(x/sqrt(2))+1);

@@ -1,0 +1,11 @@
+subject 27 and 30
+
+Exiting: Maximum number of iterations has been exceeded
+         - increase MaxIter option.
+         Current function value: Inf 
+
+These 2 subjects' thresholds:
+#27: 1200    425.8    1200
+#30: 637.5	1200	81
+
+subject 1 also has a 1200, but they did not show that message.
