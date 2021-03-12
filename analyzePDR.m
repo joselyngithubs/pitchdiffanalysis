@@ -215,23 +215,33 @@ function dprime = analyzeDprime(data)
 types = data(:,1);
 resps = data(:,2);
 
-nHits = sum(types==1 & resps==1);
-nMisses = sum(types == 1 & resps == 2);
-nCRs = sum(types==2 & resps==2);
-nFAs = sum(types==2 & resps==1);
+nSignalTrials = sum(types==2); % major
+nNoiseTrials = sum(types==1); % minor
 
-if nMisses == 0
-    pHit = nHits/(nHits+1/2);
-else
-    pHit = nHits/(nHits+nMisses);
+nHits = sum(types==2 & resps==2);
+nMisses = sum(types == 2 & resps == 1);
+nCRs = sum(types==1 & resps==1);
+nFAs = sum(types==1 & resps==2);
+
+pHit = nHits/nSignalTrials;
+pMiss = nMisses/nSignalTrials;
+pCR = nCRs/nNoiseTrials;
+pFA = nFAs/nNoiseTrials;
+
+if pHit == 1
+    pHit = (nSignalTrials - 0.5) / nSignalTrials;
 end
-if nFAs == 0
-    pCR = nCRs/(nCRs+1/2);
-else
-    pCR = nCRs/(nCRs+nFAs);
+if pFA == 1
+    pFA = (nNoiseTrials - 0.5) / nNoiseTrials;
+end
+if pHit == 0
+    pHit = 0.5 / nSignalTrials;
+end
+if pFA == 0
+    pFA = 0.5 / nNoiseTrials;
 end
 
-dprime = norminv(pHit)+norminv(pCR);
+dprime = norminv(pHit)-norminv(pFA);
 
 end
 

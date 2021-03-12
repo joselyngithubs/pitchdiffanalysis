@@ -4,9 +4,26 @@ function genPlot3TaskVsPitchCompare
 load threshold
 load dprimes
 
-makePlotRoved(dprime,threshold(:,1));
-makePlotRoved(dprime,threshold(:,2));
-makePlotFixed(dprime,threshold(:,3));
+% makePlotRoved(dprime,threshold(:,1));
+% makePlotRoved(dprime,threshold(:,2));
+% makePlotFixed(dprime,threshold(:,3));
+
+% plot hist of dp along with what the dp distribution would look like if
+% remove thresholds above 50 cents
+TonalityD = dprime;
+thresholdsPC = threshold(:,1);
+figure
+hold
+whichOnes = thresholdsPC < inf;
+hObj=histogram(TonalityD(whichOnes),10,'linewidth',2);
+get(hObj)
+whichOnes = thresholdsPC < 50;
+histogram(TonalityD(whichOnes),'binedges',hObj.BinEdges,'facecolor','y','linewidth',2)
+set(gca,'linewidth',2,'fontsize',20,'ytick',0:5:40)
+grid on
+box on
+xlim([-0.8,5])
+ylim([0,40])
 
 end
 

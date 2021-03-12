@@ -5,38 +5,25 @@ function stat = pitchdifftablestats
 % C = respond S on L trials
 % D = respond S on H trials
 
-% load subject data
-files = dir('data\*.csv');
+sourceLoc = 'C:\Users\Joselyn\Documents\pitchdiffrove data\DataMatFiles\';
+files = dir([sourceLoc '*.mat']);
 files = {files.name};
-nSubj = length(files);
 
-stat = NaN(nSubj,1); 
-threshold = NaN(nSubj,1);
+nFiles = length(files);
 
-for f=1:length(files)
-    [~,~,d] = xlsread(['data\' files{f}],'G1:G1');
-    if strcmp(d,'headphoneCheck') % contains a col for headphone check
-        d = xlsread(['data\' files{f}],'H2:S551');
-        headphoneCheck(f) = xlsread(['data\' files{f}],'G2:G2');
-    else
-        d = xlsread(['data\' files{f}],'G2:R551');
-    end
+stat = NaN(nFiles,1);
+
+for f=1:nFiles
     
-    howManyTrials = 100;
+    load([sourceLoc files{f}]);
+    data = data(data(:,1)==5,[3,6,7]); % type / response / isCorrect
     
-    %% 0.5 task threshold
-    % PD Gap 0.5
-    pd = d(d(:,1)==2,:);
-    pd = [pd(:,4:5), pd(:,3), pd(:,6), pd(:,12)]; % rearrange
-    pd = pd(30:end,:); % last 70 trials
-    [a, b, WeibullData] = PitchCompareWeibull(pd);
-    threshold(f) = getThreshold(WeibullData,a,b);
+    % grab only the trials starting after the 3rd error
+    wrongTrials = find(data(:,3)==false);
+    data = data(wrongTrials(3)+1:end,:);
     
-    %% Same/Different task
-    d = d(d(:,1)==5,:); % grab just the s/d trials
-    d = d(length(d)-howManyTrials+1:end,:);
-    TrialType = d(:,3);
-    Resp = d(:,6);
+    TrialType = data(:,1);
+    Resp = data(:,2);
     % higher (0), lower (1), same (2)
     
     subject_table = NaN(3,3);
@@ -86,49 +73,32 @@ for f=1:length(files)
     
 end
 
+load threshold
+
 figure;
-plot(stat,threshold,'o');
-xlabel('stat');
-ylabel('threshold on 0.5 task');
+thresholdsPC = threshold(:,1);
+thresholdsPC(thresholdsPC<6.25) = 6.25;
+log2Thresholds = log2(thresholdsPC);
+hold on
+% plot([-.1 6],-log2(50)*[1 1],'k--','linewidth',2)
+scatter(stat,-log2Thresholds,100,'k','linewidth',4)
+yTicks = -log2([1600 800 400 200 100 50 25 12.5 6.25]);
+yTickVals = 2.^(-yTicks);
+% xTicks = -.5:.5:5;
+% set(gca,'xtick',xTicks,'ytick',yTicks,'yticklabel',yTickVals,'fontsize',16,'linewidth',2)
+set(gca,'ytick',yTicks,'yticklabel',yTickVals,'fontsize',16,'linewidth',2)
+ylim([-log2(1600) -log2(12.5/2.5)])
+xlim([-.5 9])
+axis on
+box on
+grid on
+xlabel('table stat')
+ylabel('Pitch-difference threshold (cents)')
 
-end
+% edit y-axis label to show <=6.25
+labels = strsplit(num2str(yTickVals));
+labels{9}='\leq6.25';
+yticklabels(labels);
 
-function [A, B, WeibullData] = PitchCompareWeibull(Data)
-
-DataDim = size(Data);
-MinProb = .5;
-MaxProb = .98;
-Incorrect = Data(:,3)~=Data(:,4);
-Correct = Data(:,3)==Data(:,4);
-AbsCents = abs(log2(Data(:,2)./Data(:,1)))*1200;
-WeibullData = [AbsCents Correct Incorrect];
-[A, B] = FitWeibull(WeibullData,MinProb,MaxProb);
-
-end
-
-function threshold = getThreshold(WeibullData,A,B)
-
-[~,index] = sort(WeibullData(:,1));
-sorteddata = WeibullData(index,:);
-
-nBins = 7;
-means = NaN(nBins,1);
-propCorrect = NaN(nBins,1);
-
-for i=1:nBins % if 7 bins, 10 trials per bin
-    group = sorteddata((i-1)*10+1:i*10,:);
-    means(i) = mean(group(:,1));
-    propCorrect(i) = sum(group(:,2))/(sum(group(:,2))+sum(group(:,3)));
-end
-
-domain = 0:0.01:max(means);
-f = Weibull(domain,A,B,0.5,0.98);
-
-I = find(f<.8,1,'last'); % find index of 80% threshold
-if isempty(I)
-    threshold = NaN;
-else
-    threshold = domain(I);
-end
 
 end
