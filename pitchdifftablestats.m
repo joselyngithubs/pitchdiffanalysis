@@ -13,6 +13,8 @@ nFiles = length(files);
 
 stat = NaN(nFiles,1);
 
+newstat = NaN(nFiles,1);
+
 for f=1:nFiles
     
     load([sourceLoc files{f}]);
@@ -71,7 +73,17 @@ for f=1:nFiles
     D = subject_table(3,2);
     stat(f) = (A + B)/(C + D + 0.5); % add 0.5 to denominator in case ==0
     
+    
+    E = subject_table(2,1);
+    F = subject_table(2,3);
+    
+    newstat(f) = (E + F)/(A + C + B + D);
+    
 end
+
+% find the outlier; fix it to 2
+outlier = stat>2; 
+stat(outlier) = 2;
 
 load threshold
 
@@ -80,19 +92,43 @@ thresholdsPC = threshold(:,1);
 thresholdsPC(thresholdsPC<6.25) = 6.25;
 log2Thresholds = log2(thresholdsPC);
 hold on
-% plot([-.1 6],-log2(50)*[1 1],'k--','linewidth',2)
-scatter(stat,-log2Thresholds,100,'k','linewidth',4)
+plot([-.1 2.1],-log2(50)*[1 1],'k--','linewidth',2)
+scatter(stat(~outlier),-log2Thresholds(~outlier),100,'k','linewidth',4)
+% plot the outlier in a diff symbol
+scatter(stat(outlier),-log2Thresholds(outlier),100,'kd','linewidth',4)
 yTicks = -log2([1600 800 400 200 100 50 25 12.5 6.25]);
 yTickVals = 2.^(-yTicks);
 % xTicks = -.5:.5:5;
 % set(gca,'xtick',xTicks,'ytick',yTicks,'yticklabel',yTickVals,'fontsize',16,'linewidth',2)
 set(gca,'ytick',yTicks,'yticklabel',yTickVals,'fontsize',16,'linewidth',2)
 ylim([-log2(1600) -log2(12.5/2.5)])
-xlim([-.5 9])
+xlim([-.1 2.1])
 axis on
 box on
 grid on
-xlabel('table stat')
+xlabel('Direction confusability')
+ylabel('Pitch-difference threshold (cents)')
+
+% edit y-axis label to show <=6.25
+labels = strsplit(num2str(yTickVals));
+labels{9}='\leq6.25';
+yticklabels(labels);
+
+figure;
+newstat(newstat>4) = 4;
+% plot([-.1 2.1],-log2(50)*[1 1],'k--','linewidth',2)
+scatter(newstat,-log2Thresholds,100,'k','linewidth',4)
+yTicks = -log2([1600 800 400 200 100 50 25 12.5 6.25]);
+yTickVals = 2.^(-yTicks);
+% xTicks = -.5:.5:5;
+% set(gca,'xtick',xTicks,'ytick',yTicks,'yticklabel',yTickVals,'fontsize',16,'linewidth',2)
+set(gca,'ytick',yTicks,'yticklabel',yTickVals,'fontsize',16,'linewidth',2)
+ylim([-log2(1600) -log2(12.5/2.5)])
+% xlim([-.1 2.1])
+axis on
+box on
+grid on
+xlabel('new table stat')
 ylabel('Pitch-difference threshold (cents)')
 
 % edit y-axis label to show <=6.25
