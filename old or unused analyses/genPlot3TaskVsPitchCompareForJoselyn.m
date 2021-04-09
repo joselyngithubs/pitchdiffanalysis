@@ -1,4 +1,4 @@
-function genPlot3TaskVsPitchCompare
+function genPlot3TaskVsPitchCompareForJoselyn
 
 Red = [1, 0, 0];
 Blue = [0 .3 1];
@@ -23,11 +23,12 @@ scatter(TonalityD,-log2Thresholds,100,'k','linewidth',4)
 whichOnes = thresholdsPC > 100 & TonalityD > 1;
 plot(TonalityD(whichOnes),-log2Thresholds(whichOnes),'ko','linewidth',4,'markerfacecolor','k')
 % yVals = round(2.^(1:.25:3.5));
-yTicks = -log2([1600 800 400 200 100 50 25 12.5 6.25])
+yTicks = -log2([1600 800 400 200 100 50 25 12.5 6.25 3.125])
 yTickVals = 2.^(-yTicks);
 xTicks = -.5:.5:5;
-set(gca,'xtick',xTicks,'ytick',yTicks,'yticklabel',yTickVals,'fontsize',16,'linewidth',2)
-ylim([-12 -3])
+set(gca,'xtick',xTicks,'ytick',yTicks,'yticklabel',yTickVals,'fontsize',15,'linewidth',2)
+% ylim([-12 -3])
+ylim([-12 -log2(3.125)])
 xlim([-.8 5])
 axis on
 box on

@@ -81,27 +81,36 @@ for f=1:nFiles
     
 end
 
-% find the outlier; fix it to 2
+% find the outlier; fix it to 2.01. An existing data point will overlap
+% with it so setting it to 2.01 rather than 2 to avoid that overlap. Then,
+% set the existing data point to 1.99 (below after computing threshold)
+% to further avoid overlap.
 outlier = stat>2; 
-stat(outlier) = 2;
+stat(outlier) = 2.02;
 
 load threshold
 
 figure;
 thresholdsPC = threshold(:,1);
-thresholdsPC(thresholdsPC<6.25) = 6.25;
+thresholdsPC(thresholdsPC<3.125) = 3.125;
 log2Thresholds = log2(thresholdsPC);
+
+% find the existing data pt to avoid the overlap. 
+idx = find(log2Thresholds>8.41 & log2Thresholds<8.47);
+stat(idx) = 1.98;
+
 hold on
 plot([-.1 2.1],-log2(50)*[1 1],'k--','linewidth',2)
 scatter(stat(~outlier),-log2Thresholds(~outlier),100,'k','linewidth',4)
-% plot the outlier in a diff symbol
-scatter(stat(outlier),-log2Thresholds(outlier),100,'kd','linewidth',4)
-yTicks = -log2([1600 800 400 200 100 50 25 12.5 6.25]);
+% plot the outlier in filled
+% plot(stat(outlier),-log2Thresholds(outlier),'ko','linewidth',6,'markerfacecolor','k')
+scatter(stat(outlier),-log2Thresholds(outlier),100,'k','filled','MarkerEdgeColor','k','linewidth',4);
+yTicks = -log2([1600 800 400 200 100 50 25 12.5 6.25 3.125]);
 yTickVals = 2.^(-yTicks);
 % xTicks = -.5:.5:5;
 % set(gca,'xtick',xTicks,'ytick',yTicks,'yticklabel',yTickVals,'fontsize',16,'linewidth',2)
 set(gca,'ytick',yTicks,'yticklabel',yTickVals,'fontsize',16,'linewidth',2)
-ylim([-log2(1600) -log2(12.5/2.5)])
+ylim([-log2(1600) -log2(2.3)])
 xlim([-.1 2.1])
 axis on
 box on
@@ -109,32 +118,33 @@ grid on
 xlabel('Direction confusability')
 ylabel('Pitch-difference threshold (cents)')
 
-% edit y-axis label to show <=6.25
+% edit y-axis label to show <=3.125
 labels = strsplit(num2str(yTickVals));
-labels{9}='\leq6.25';
+labels{10}='\leq3.125';
 yticklabels(labels);
 
-figure;
-newstat(newstat>4) = 4;
-% plot([-.1 2.1],-log2(50)*[1 1],'k--','linewidth',2)
-scatter(newstat,-log2Thresholds,100,'k','linewidth',4)
-yTicks = -log2([1600 800 400 200 100 50 25 12.5 6.25]);
-yTickVals = 2.^(-yTicks);
-% xTicks = -.5:.5:5;
-% set(gca,'xtick',xTicks,'ytick',yTicks,'yticklabel',yTickVals,'fontsize',16,'linewidth',2)
-set(gca,'ytick',yTicks,'yticklabel',yTickVals,'fontsize',16,'linewidth',2)
-ylim([-log2(1600) -log2(12.5/2.5)])
-% xlim([-.1 2.1])
-axis on
-box on
-grid on
-xlabel('new table stat')
-ylabel('Pitch-difference threshold (cents)')
-
-% edit y-axis label to show <=6.25
-labels = strsplit(num2str(yTickVals));
-labels{9}='\leq6.25';
-yticklabels(labels);
+% % the "new" stat, which we decided wasn't good
+% figure;
+% newstat(newstat>4) = 4;
+% % plot([-.1 2.1],-log2(50)*[1 1],'k--','linewidth',2)
+% scatter(newstat,-log2Thresholds,100,'k','linewidth',4)
+% yTicks = -log2([1600 800 400 200 100 50 25 12.5 6.25]);
+% yTickVals = 2.^(-yTicks);
+% % xTicks = -.5:.5:5;
+% % set(gca,'xtick',xTicks,'ytick',yTicks,'yticklabel',yTickVals,'fontsize',16,'linewidth',2)
+% set(gca,'ytick',yTicks,'yticklabel',yTickVals,'fontsize',16,'linewidth',2)
+% ylim([-log2(1600) -log2(12.5/2.5)])
+% % xlim([-.1 2.1])
+% axis on
+% box on
+% grid on
+% xlabel('new table stat')
+% ylabel('Pitch-difference threshold (cents)')
+% 
+% % edit y-axis label to show <=6.25
+% labels = strsplit(num2str(yTickVals));
+% labels{9}='\leq6.25';
+% yticklabels(labels);
 
 
 end

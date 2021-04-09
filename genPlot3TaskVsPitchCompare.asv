@@ -70,7 +70,7 @@ function makeSubplot(TonalityD,thresholdsPC)
 
 fontSize = 14;
 y = .2;
-wd = .28;
+wd = .3;
 ht = .75;
 
 thresholdsPC(thresholdsPC<3.125) = 3.125;
@@ -105,10 +105,8 @@ labels = strsplit(num2str(yTickVals));
 labels{10}='\leq3.125';
 yticklabels(labels);
 
-text(4.5,-10.1,'A','fontsize',20)
-
 % subplot 2
-subplot('Position',[.12+wd y wd ht]);
+subplot('Position',[.1*2+wd y wd ht]);
 hold on
 plot([-.8 5],-log2(50)*[1 1],'k--','linewidth',2)
 scatter(TonalityD,-log2Thresholds(:,2),100,'k','linewidth',4)
@@ -119,37 +117,14 @@ plot(TonalityD(whichOnes),-log2Thresholds(whichOnes,2),'ko','linewidth',4,'marke
 yTicks = -log2([1600 800 400 200 100 50 25 12.5 6.25 3.125]);
 yTickVals = 2.^(-yTicks);
 xTicks = -.5:.5:5;
-set(gca,'xtick',xTicks,'ytick',yTicks,'yticklabel',{},'fontsize',fontSize,'linewidth',2)
+set(gca,'xtick',xTicks,'ytick',yTicks,'fontsize',fontSize,'linewidth',2)
 ylim([-log2(1600) -log2(2.3)]) % I extended the upper limit a little to allow some space
 xlim([-.8 5])
 axis on
 box on
 grid on
 xlabel('3-task-d^\prime')
-
-text(4.5,-10.1,'B','fontsize',20)
-
-% subplot 3
-subplot('Position',[.14+wd+wd y wd ht]);
-hold on
-plot([-.8 5],-log2(50)*[1 1],'k--','linewidth',2)
-scatter(TonalityD,-log2Thresholds(:,3),100,'k','linewidth',4)
-whichOnes = thresholdsPC(:,3) > 100 & TonalityD > 1;
-plot(TonalityD(whichOnes),-log2Thresholds(whichOnes,3),'ko','linewidth',4,'markerfacecolor','k')
-% yVals = round(2.^(1:.25:3.5));
-% yTicks = -log2([1600 800 400 200 100 50 25 12.5 6.25 3.125 1.5625])
-yTicks = -log2([1600 800 400 200 100 50 25 12.5 6.25 3.125]);
-yTickVals = 2.^(-yTicks);
-xTicks = -.5:.5:5;
-set(gca,'xtick',xTicks,'ytick',yTicks,'yticklabel',{},'fontsize',fontSize,'linewidth',2)
-ylim([-log2(1600) -log2(2.3)]) % I extended the upper limit a little to allow some space
-xlim([-.8 5])
-axis on
-box on
-grid on
-xlabel('3-task-d^\prime')
-
-text(4.5,-10.1,'C','fontsize',20)
+ylabel('Pitch-difference threshold (cents)')
 
 end
 
