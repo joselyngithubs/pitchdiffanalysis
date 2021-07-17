@@ -1,6 +1,8 @@
 function analyzePDR(plotAllData)
 global plotSubjectData
 
+%% this old version reads in data via csv files
+
 % plot individual subject data if plotSubjectData == 1
 
 if (nargin<1)
@@ -9,7 +11,7 @@ else
     plotSubjectData = plotAllData;
 end
 
-files = dir('DataMatFiles\*.mat');
+files = dir('data\*.csv');
 files = {files.name};
 
 AllData = NaN(length(files),9);
@@ -41,15 +43,24 @@ nSubplot = 1;
 
 for f=1:length(files)
     
-    load(['DataMatFiles' filesep files{f}])
-    d = data;
+    [~,~,d] = xlsread(['data\' files{f}],'G1:G1');
+    if strcmp(d,'headphoneCheck') % contains a col for headphone check
+        d = xlsread(['data\' files{f}],'H2:S551');
+%         headphoneCheck(f) = xlsread(['data\' files{f}],'G2:G2');
+        yrsTrain(f) = xlsread(['data\' files{f}],'E2:E2');
+    else
+        d = xlsread(['data\' files{f}],'G2:R551');
+    end
+    
+    % we are assuming each participant did all trials of all tasks -- so
+    % far, this is true
     
     fprintf('Subject %d\n',f);
     
     % analyze tone-scrambles
     ts = d(d(:,1)==1,:);
     ts = [ts(:,3), ts(:,6)];
-    ts = ts(51:150,:); % last 100 trials
+    ts = ts(101:150,:); % last 50 trials
     % col 1 = trial type
     % col 2 = response
     dprime = analyzeDprime(ts);
@@ -120,6 +131,18 @@ end
 % % remove subjects with headphoneCheck<5 % this has been taken care of
 % AllData = AllData(~ismember(headphoneCheck,[1,2,3,4]),:);
 % threshold = threshold(~ismember(headphoneCheck,[1,2,3,4]),:);
+
+save yrsTrain yrsTrain
+
+figure;
+plot(yrsTrain,AllData(:,1),'o');
+xlabel('DPrime');
+ylabel('Yrs of music training');
+xlim([min(yrsTrain)-1 max(yrsTrain)+1])
+ylim([-.75 5])
+grid on
+[r1,p1] = corrcoef(yrsTrain,AllData(:,1));
+plotRegLine(yrsTrain,AllData(:,1),[min(yrsTrain)-1 max(yrsTrain)+1]);
 
 figure;
 h1 = axes;
