@@ -9,7 +9,7 @@ myFunction <- function(f) {
   lang1
 }
 
-setwd("C:/Users/Joselyn/Documents/pitchdiffrove data/data")
+setwd("C:/Users/Joselyn/Documents/pitchdiffrove data/csv data files/n of 99")
 
 filelist = list.files(pattern="*.csv$")
 
@@ -29,3 +29,6 @@ all_data%>%group_by(lang)%>%summarize(threshold=mean(threshold),dp=mean(dp))
 
 # participants with dp>2.5
 all_data%>%filter(dp>2.5)%>%group_by(lang)
+
+# what was the dp of the tonal lang speakers?
+all_data%>%filter(lang %in% c("Vietnamese","Chinese (Cantonese)", "Chinese (Mandarin)"))
